@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<style>
+
+#container {
+  width: 400px;
+  height: 400px;
+  position: relative;
+  background-image: url("field.jpg");
+  background-size:contain;
+  border-radius: 12px;
+}
+#rect1 {
+  width: 70px;
+  height: 10px;
+  position: absolute;
+  top: 370px;
+  left: 165px;
+  background-color: #1d3557;
+  border-radius: 7px;
+}
+#rect2 {
+  width: 70px;
+  height: 10px;
+  position: absolute;
+  top: 30px;
+  left: 165px;
+  background-color: #1d3557;
+  border-radius: 7px;
+}
+#circle {
+      width: 20px;
+      height: 20px;
+      position: absolute;
+      top: 100px;
+  	  left: 190px;
+      -webkit-border-radius: 10px;
+      -moz-border-radius: 10px;
+      border-radius: 10px;
+      background-color: #e63946;
+    }
+.button{
+	width: 49%;
+	font-size: 20px;
+	background-color: #457b9d; 
+	color: black; 
+	border: none;
+	border-radius: 7px;
+}
+.score{
+	background-color: #457b9d; 
+	width: 49%;
+	border-radius: 7px;
+	font-size: 20px;
+	padding: 10px;
+}
+</style>
+<head>
+	<title>ping</title>
+</head>
+<body onkeydown="moverect(event)" onload="" style="background: #a8dadc;">
+	<table>
+		<tr>
+			<td>
+				<div id ="container">
+					<div id ="rect1"></div>
+					<div id ="rect2"></div>
+					<div id ="circle"></div>
+				</div>
+			</td>
+			<td style="background-color: #e63946; width: 280px; border-radius: 12px;">
+				<div>
+					<div style="margin-left: 3px"><input type="button" value="start" class="button" onclick="circleMove()"> <input type="button" value="reset" class="button" onclick="resetit()"></div>
+					<br> </br>
+					<p style="font-size: 20px; margin-left: 105px">Score:</p>
+					<span style="margin-left: 35px;" class="score">You : <span style="color: #999;" id="pla">0</span></span>
+					<span class="score">Computer : <span style="color: #999;" id="comp">0</span></span>
+				</div>
+				<div>
+					<br> </br>
+					<span class="score" style="margin-left: 70px">level : <span style="color: #999;"></span>
+					<select id="selectBox" onchange="changeLevel()">
+						<option value="0">
+							One
+						</option>
+						<option value="3">
+							Two
+						</option>
+						<option value="9">
+							three
+						</option>
+					</select>
+					</span>
+				</div>
+			</td>
+			<td style="width: 700px; height: 400px; position: relative; background: #a8dadc; border-radius: 12px; padding-left: 10px">
+				<p style="font-family: sans-serif; font-size: 22px; font-style: ">How To play:
+				<span style="font-family: sans-serif; font-size: 16px; font-style: ">
+				Use right and left arrows on the keyboard to control lower side player while the upper player is computer side, try to reach the ball before passing you.
+				If the ball passes you the computer gains 1 point and the same for you.
+				You have three levels each each is change the ball speed.</span></p>
+				<p style="font-family: sans-serif; font-size: 22px; font-style: ">
+				About:
+				<span style="font-family: sans-serif; font-size: 16px; font-style: ">
+				This is a pure javascript single player pingpong game.
+			</span>
+			</p>
+			<p style="font-family: sans-serif; font-size: 22px; font-style: ">
+				Team:
+				<span style="font-family: sans-serif; font-size: 16px; font-style: ">
+					<br>
+				Mohamed Elshiekh
+				<br>
+				Alaa Muhamed
+				<br>
+				Ahmed Mubarak
+				<br>
+				Nehal Salah
+			</span>
+			</p>
+			<p style="font-family: sans-serif; font-size: 22px; font-style: ">
+				Project:
+				<span style="font-family: sans-serif; font-size: 16px; font-style: ">
+				ITI Javascript project
+				</span>
+				</p>
+			</td>
+		</tr>
+	</table>
+
+
+<span id="directx" hidden="true">1</span>
+<span id="directy" hidden="true">1</span>
+<span id="pos1x" hidden="true">165</span>
+<span id="pos2x" hidden="true">165</span>
+
+<script type="text/javascript">
+	tX = 0;
+	var flag=0;
+	function resetit(){
+		if(flag!=0){
+		document.getElementById("circle").style.left="100px";
+		document.getElementById("circle").style.top="160px";
+		dx = parseInt(document.getElementById("directx").innerHTML);
+		dx = dx*-1;
+		var x = 165;
+		document.getElementById("pos2x").innerHTML = x;
+			document.getElementById("rect2").style.left = x+'px';
+		document.getElementById("directx").innerHTML = dx;
+		flag = 0;
+		}
+	}
+	function moverect(event) {
+	step = 7;
+	var elem = document.getElementById("rect1");
+	var pos = document.getElementById("rect1").getBoundingClientRect().left -step - 3;
+		if(event.keyCode==37){
+			if(pos>=step){
+				pos = pos-step;
+				elem.style.left = pos+'px';
+				document.getElementById("pos1x").innerHTML = pos;
+			}
+		}
+		else if(event.keyCode==39){
+			if(pos<=330-step){
+				pos = pos+step;
+				elem.style.left = pos+'px';
+				document.getElementById("pos1x").innerHTML = pos;
+			}
+		}
+	}
+	function circleMove() {
+		if(flag==0){
+  var elem = document.getElementById("circle");
+  var posx = document.getElementById("circle").getBoundingClientRect().left; 
+  var posy = document.getElementById("circle").getBoundingClientRect().top;
+  var dirx = parseInt(document.getElementById("directx").innerHTML);
+  var diry = parseInt(document.getElementById("directy").innerHTML);
+  var id = setInterval(frame, 15-tX);
+  
+	}
+  function frame() {
+  	var pos1x = parseInt(document.getElementById("pos1x").innerHTML);
+  	var pos2x = parseInt(document.getElementById("pos2x").innerHTML);
+    if (posy >= 350) {
+    	if(posx>=pos1x-20 && posx<=pos1x+70){
+    		diry = diry*-1;
+		    document.getElementById("directy").innerHTML = diry;
+		     console.log("ya rab");
+		     console.log(pos1x);
+		}
+		else{
+			valc = parseInt(document.getElementById("comp").innerHTML);
+			valc++;
+			document.getElementById("comp").innerHTML = valc;
+			flag=1;
+			clearInterval(id);
+		}
+    }
+    if (posy <= 38.5) {
+    	if(posx>=pos2x-20 && posx<=pos2x+70){
+    		diry = diry*-1;
+		    document.getElementById("directy").innerHTML = diry;
+		}
+		else{
+			valp = parseInt(document.getElementById("pla").innerHTML);
+			valp++;
+			document.getElementById("pla").innerHTML = valp;
+			flag=1;
+			clearInterval(id);
+		}
+    }
+    if(posx<=0 || posx>=385){
+    	dirx = dirx*-1;
+		document.getElementById("directx").innerHTML = dirx;
+    }
+    if(diry==-1 && posy<300){
+    	moveComp(posx);
+    }
+
+    posx = posx + dirx; 
+    posy = posy + diry; 
+		elem.style.top = posy + 'px'; 
+		elem.style.left = posx + 'px';
+ 	 }
+	}
+	function moveComp(cx){
+		var x = parseInt(document.getElementById("pos2x").innerHTML);
+		if(x>(cx-20) && x>0){
+			x=x-2;
+			document.getElementById("pos2x").innerHTML = x;
+			document.getElementById("rect2").style.left = x+'px';
+		}
+		if(x+70<(cx) && x-70<400){
+			x=x+2;
+			document.getElementById("pos2x").innerHTML = x;
+			document.getElementById("rect2").style.left = x+'px';
+		}
+
+	}
+	function changeLevel(){
+		var selectBox = document.getElementById("selectBox");
+    var selectedValue = selectBox.options[selectBox.selectedIndex].value;
+    tX=parseInt(selectedValue);
+    console.log(selectedValue);
+	}
+</script>
+<img src="Ping-Pong.png" alt="HTML5 Icon" width="250" height="175" align="right">
+</body>
+</html>

@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Cars Game</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <style>
+            .intro{
+                width: 800px;
+                height: 400px;
+                background:#9e9e9e4d;
+                border-radius: 43px;
+                text-align: center;
+                margin: auto;
+                position: relative;
+            }
+            #startBtn {
+                background: #202731;
+                background-image: -webkit-linear-gradient(top, #202731, #6d6d6d);
+                background-image: -moz-linear-gradient(top, #202731, #6d6d6d);
+                background-image: -ms-linear-gradient(top, #202731, #6d6d6d);
+                background-image: -o-linear-gradient(top, #202731, #6d6d6d);
+                background-image: linear-gradient(to bottom, #202731, #6d6d6d);
+                -webkit-border-radius: 28;
+                -moz-border-radius: 28;
+                border-radius: 28px;
+                font-family: Arial;
+                color: #ffffff;
+                font-size: 20px;
+                padding: 10px 20px 10px 20px;
+                text-decoration: none;
+                margin: 0 auto;
+                position: absolute;
+                top: 45%;
+                left: 42%;
+            }
+
+            #startBtn:hover {
+                background: #6d6d6d;
+                background-image: -webkit-linear-gradient(top, #6d6d6d, #202731);
+                background-image: -moz-linear-gradient(top, #6d6d6d, #202731);
+                background-image: -ms-linear-gradient(top, #6d6d6d, #202731);
+                background-image: -o-linear-gradient(top, #6d6d6d, #202731);
+                background-image: linear-gradient(to bottom, #6d6d6d, #202731);
+                text-decoration: none;
+            }
+            canvas {
+                border:1px solid #d3d3d3;
+                background-color:#6d6d6d;
+                display: block;
+            }
+            body{
+                background:url(graphite.jpg);     
+            }
+            .intro >p {
+                text-align: center;
+                color: white;
+                font-family: sans-serif;
+                font-weight: bolder;
+                position: relative;
+                top: 61%;
+                left: 2%;
+                    }
+        </style>
+    </head>
+    
+    <body id = "body">
+        <div class="intro">
+            <button id="startBtn">Start Game</button>
+            <p>This is our game, Have Fun</p>
+            <img src="streetWheels.jpg" alt="Intro Image" style="width: 532px;">
+        </div>
+        <script>
+           var startBtn=  document.getElementById("startBtn");
+           var introdiv= document.getElementsByClassName("intro")
+            startBtn.addEventListener("click",function(){
+                startGame();
+                this.remove();
+                introdiv[0].remove();
+            })
+
+            var myGamePiece;
+			var myScore;
+			var life = 4;
+			var scoreCount = 0;
+            var myObstacles = [];
+            var myLanes = [];
+            var myCars = [];
+            var myCarsF = [];
+            var multi = 1;
+			var lifearray = [];
+var mySound;
+var breaksound;
+var speedup;
+var chrrash;
+            function startGame() {
+                myGamePiece = new component(100, 50, "image.jpg", 100, 200, "image");
+ myScore = new component("30px", "Consolas", "black", 500, 40, "text");
+lifearray.push(new component(30, 30, "hreat.png", 560, 100, "image"));
+lifearray.push(new component(30, 30, "hreat.png", 600, 100, "image"));
+lifearray.push(new component(30, 30, "hreat.png", 640, 100, "image"));
+lifearray.push(new component(30, 30, "hreat.png", 680, 100, "image"));
+                myGameArea.start();
+            }
+function sound(src) {
+    this.sound = document.createElement("audio");
+    this.sound.src = src;
+	//this.sound.loop = true;
+    this.sound.setAttribute("preload", "auto");
+    this.sound.setAttribute("controls", "none");
+    this.sound.style.display = "none";
+    document.body.appendChild(this.sound);
+    this.play = function(){
+        this.sound.play();
+    }
+    this.stop = function(){
+        this.sound.pause();
+    }    
+}
+var myGameArea = new createGameAera();
+             function createGameAera()
+			{
+                this.canvas= document.createElement("canvas");
+				this.canvas.id = "id";
+				this.canvas.style.margin="auto";
+                this.start= function () {
+                    this.canvas.width = 720;
+                    this.canvas.height = 500;
+                    this.context = this.canvas.getContext("2d");
+                    document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+                    this.frameNo = 0;
+                    this.interval = setInterval(updateGameArea, 20);
+                    window.addEventListener('keydown', function (e) {
+                        e.preventDefault();
+                        myGameArea.keys = (myGameArea.keys || []);
+                        myGameArea.keys[e.keyCode] = (e.type === "keydown");
+                    });
+                    window.addEventListener('keyup', function (e) {
+                        myGameArea.keys[e.keyCode] = (e.type === "keydown");
+                    });
+                };
+                this.clear= function () {
+                    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                };
+                this.stop= function () {
+                    clearInterval(this.interval);
+                }
+
+            };
+            function between(x, min, max) {
+                return x >= min && x <= max;
+            }
+            function  midpoint(x1, x2)
+            {
+                return x1 + x2 / 2;
+            }
+            function checkhit(midpoint1, midpoint2, width)
+            {
+                var x = Math.abs(midpoint1 - midpoint2);
+                if (x < width)
+                {
+                    // console.log(midpoint1+" "+midpoint2);
+                    return  true;
+
+                } else
+                    return false;
+            }
+            function component(width, height, color, x, y, type) {
+                this.width = width;
+                this.height = height;
+                this.speedX = 1;
+                this.speedY = 0;
+				this.color = color;
+                this.x = x;
+                this.y = y;
+                this.type = type;
+                if (type == "image") {
+                    this.image = new Image();
+                    this.image.src = color;
+                }
+				
+                this.newPos = function () {
+                    //this.x += this.speedX;
+					//if(this.y>=0&&this.y<=450)
+                    this.y += this.speedY;
+					//else clearmove();
+                };
+                this.update = function () {
+                    ctx = myGameArea.context;
+                    ctx = myGameArea.context;
+                    if (type == "image") {
+                        ctx.drawImage(this.image,
+                                this.x,
+                                this.y,
+                                this.width, this.height);
+                    }else if (this.type == "text") {
+            ctx.font = this.width + " " + this.height;
+            ctx.fillStyle = this.color;
+            ctx.fillText(this.text, this.x, this.y);
+        } else {
+                        ctx.fillStyle = color;
+                        ctx.fillRect(this.x, this.y, this.width, this.height);
+                    }
+                };
+
+
+                this.crashWith = function (otherobj) {
+                    var myleft = this.x;
+                    var myright = this.x + (this.width-10);
+                    var mytop = this.y;
+                    var mybottom = this.y + (this.height-10);
+                    var otherleft = otherobj.x;
+                    var otherright = otherobj.x + (otherobj.width-10);
+                    var othertop = otherobj.y;
+                    var otherbottom = otherobj.y + (otherobj.height-10);
+                    var crash = true;
+                    if ((mybottom < othertop) || (mytop > otherbottom) || (myright < otherleft) || (myleft > otherright)) {
+                        crash = false;
+                    }
+                    return crash;
+                };
+                this.crashWithcar = function (otherobj) {
+                    var myleft = this.x;
+                    var myright = this.x + (this.width);
+                    var mytop = this.y;
+                    var mybottom = this.y + (this.height);
+                    var otherleft = otherobj.x;
+                    var otherright = otherobj.x + (otherobj.width);
+                    var othertop = otherobj.y;
+                    var otherbottom = otherobj.y + (otherobj.height);
+                    var crash = false;
+                    if (checkhit(midpoint(otherleft, otherright), midpoint(myleft, myright), width)) {
+                        crash = true;
+                        if (myright == otherright)
+                            console.log(myright + " " + otherright);
+                    }
+
+                    return crash;
+                };
+
+            }
+
+            function getRandomColor() {
+                var letters = '0123456789ABCDEF';
+                var color = '#';
+                for (var i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
+            }
+            function myFunction(item, index, arr)
+            {
+			if(item.x <-(item.width+20))
+			{
+			arr.splice(index, 1);
+			}else{
+
+                item.x += -item.speedX * multi;
+                item.update();
+				}
+
+
+
+            }
+			function restartMyGame(){
+			var parent = document.getElementById("body");
+var child = document.getElementById("id");
+parent.removeChild(child);
+			myGamePiece = new component(100, 50, "image.jpg", 100, 200, "image");
+             myObstacles = [];
+                    myLanes = [];
+                    myCars = [];
+                    myCarsF = [];
+                    multi = 1;
+					life = 4;
+					scoreCount = 0;
+					myGameArea = new createGameAera();
+                    myGameArea.start();
+			}
+            function updateGameArea() {
+                var x, y;
+                var yy = [90, 40, 160, 220];
+                var xx = [300, 360, 440, 500];
+                for (i = 0; i < myObstacles.length; i += 1) {
+                    if (myGamePiece.crashWith(myObstacles[i])) {
+					myGameArea.keys =[];
+					clearmove();
+					//chrrash.play();
+					
+                        // alert("you hit a Wall do you have "+life+" left ");
+						 myGamePiece.speedX=1;
+						 multi=1;
+						 life--;
+						 if(life>=1)
+						 
+						myObstacles.splice(i, 1);
+						else{
+						alert("you have lost better luck next time");
+						restartMyGame();
+					
+						}
+						break;
+						}
+                       // return;
+                    }
+					for (y = 0; y < myCarsF.length; y += 1) {
+                  if (myGamePiece.crashWith(myCarsF[y])&&multi>4) {
+				  myGameArea.keys =[];
+                       clearmove();
+					//chrrash.play();
+					
+                        // alert("you hit a car do you have "+life+" left ");
+						 myGamePiece.speedX=1;
+						 multi=1;
+						 life--;
+						 if(life>=1)
+						 
+						myCarsF.splice(y, 1);
+						else{
+						alert("you have lost better luck next time");
+					restartMyGame();
+					
+						}
+						break;
+						}
+						else if(myGamePiece.crashWith(myCarsF[y])&&multi<4)
+						{
+						myCarsF.splice(y, 1);
+						}
+						}
+
+
+                        
+                    
+                   
+				   for (k = 0; k < myCars.length; k += 1) {
+                  if (myGamePiece.crashWith(myCars[k])&&multi>2) {
+				  myGameArea.keys =[];
+                       clearmove();
+					//chrrash.play();
+					
+                         //alert("you hit a car do you have "+life+" left ");
+						 myGamePiece.speedX=1;
+						 multi=1;
+						 life--;
+						 if(life>=1)
+						 
+						myCars.splice(k, 1);
+						else{
+						alert("you have lost better luck next time");
+						restartMyGame();
+					
+						}
+						break;
+						}
+						else if(myGamePiece.crashWith(myCars[k])&&multi<=2)
+						{
+						myCars.splice(k, 1);
+						}
+						}
+
+
+                        
+                    
+                   
+					
+					
+                
+				//
+                for (i = 0; i < myCars.length; i += 1) {
+                    for (y = i + 1; y < myCars.length; y += 1) {
+                        if (myCars[i].x !== myCars[y].x && myCars[i].crashWith(myCars[y])) {
+                             //console.log(i+" "+y);
+                            if(myCars[i].speedX<myCars[y].speedX)
+							{
+							myCars[i].speedX =myCars[y].speedX;
+							}else{
+							myCars[y].speedX =myCars[i].speedX;
+							}
+                         if(myCars[i].x<myCars[y].x)
+						 {
+						 myCars[i].speedX++;
+						 myCars[y].speedX = myCars[i].speedX-1;
+						 }else{
+						 myCars[y].speedX =myCars[i].speedX-1;
+						 
+						 }
+
+
+                        }
+                    }
+                }
+				for (i = 0; i < myCarsF.length; i += 1) {
+                    for (y = i + 1; y < myCarsF.length; y += 1) {
+                        if (myCarsF[i].x !== myCarsF[y].x && myCarsF[i].crashWith(myCarsF[y])) {
+                             //console.log(i+" "+y);
+						if(myCarsF[i].speedX<myCarsF[y].speedX)
+							{
+							myCarsF[i].speedX =myCarsF[y].speedX;
+							}else{
+							myCarsF[y].speedX =myCarsF[i].speedX;
+							}
+							if(myCarsF[i].x>myCarsF[y].x)
+						 {
+						 myCarsF[i].speedX++;
+						 myCarsF[y].speedX--;
+						 }else{
+						 myCarsF[y].speedX++;
+						 myCarsF[i].speedX--;
+						 }
+							
+
+
+                        }
+                    }
+                }
+				
+				
+                myGameArea.clear();
+                myGameArea.frameNo += 1;
+				var key = false;
+                if (myGameArea.frameNo === 1 || everyinterval(150 / multi)) {
+                    x = myGameArea.canvas.width;
+                    y = myGameArea.canvas.height - 400;
+                    myLanes.push(new component(100, 10, "white", x, y, 'ob'));
+                }
+                if (myGameArea.frameNo === 1 || everyinterval(150 / multi)) {
+                    x = myGameArea.canvas.width;
+                    y = myGameArea.canvas.height - 120;
+                    myLanes.push(new component(100, 10, "white", x, y, 'ob'));
+                }
+                if (myGameArea.frameNo === 1 || everyinterval(300 / multi))
+                {
+                    x = myGameArea.canvas.width;
+                    y = myGameArea.canvas.height - 250;
+                    myObstacles.push(new component(100, 10, "black", x, y, 'ob'));
+                }
+                if (everyinterval(Math.floor((Math.random() * 200 / multi) + 150 / multi)))
+                {
+                    x = myGameArea.canvas.width ;
+                    y = myGameArea.canvas.height - yy[Math.floor((Math.random() * 4) +0)];
+                    var s = new component(100, 50, "im.jpg", x, y, "image");
+                    s.speedX = Math.floor((Math.random() * 5) + 2);
+                    myCars.push(s);
+                }
+                if (everyinterval(Math.floor((Math.random() * 200 / multi) + 150 / multi)))
+                {
+                    x = myGameArea.canvas.width;
+                    y = myGameArea.canvas.height - xx[Math.floor((Math.random() * 4) + 0)];
+                    var carfront = new component(100, 50, "im1.png", x, y, "image");
+                    carfront.speedX = Math.floor((Math.random() * 5) + 1.5);
+                    myCarsF.push(carfront);
+                }
+                for (i = 0; i < myCarsF.length; i += 1) {
+				if(myCarsF[i].x <-(myCarsF[i].x+myCarsF[i].width+10))
+				{
+				myCarsF.splice(i, 1);
+				}else{
+                    myCarsF[i].x -= (multi - myCarsF[i].speedX);
+
+                    myCarsF[i].update();
+					}
+                }
+                myCars.forEach(myFunction);
+                myObstacles.forEach(myFunction);
+                myLanes.forEach(myFunction);
+
+
+                if (myGameArea.keys && myGameArea.keys[37]) {
+                    moveleft();
+					key=true;
+					//speedup.stop();
+				//breaksound.play();
+                }
+               else  if (myGameArea.keys && myGameArea.keys[80])
+                {
+                    myGameArea.stop();
+                }
+                else if (myGameArea.keys && myGameArea.keys[13])
+                {
+                    myGamePiece = new component(100, 50, "image.jpg", 100, 200, "image");
+					myObstacles = [];
+                    myLanes = [];
+                    myCars = [];
+                    myCarsF = [];
+                    multi = 1;
+                    myGameArea.start();
+                }
+                // else clearmove();
+                else if (myGameArea.keys && myGameArea.keys[39]) {
+				//speedup.play();
+				key=true;
+                    moveright();
+                }
+
+             else   if (myGameArea.keys && myGameArea.keys[38]) {
+				key=true;
+                    moveup();
+                }
+                // else clearmove();
+               else   if (myGameArea.keys && myGameArea.keys[40]) {
+				  key=true;
+                    movedown();
+                }
+				else {
+                    clearmove();
+					key=false;
+					//speedup.stop();
+				//breaksound.stop();
+					}
+                myGamePiece.newPos();
+				if(myGamePiece.y>250)
+				{
+				scoreCount+=multi*2;
+				if(multi>2&&multi<5)
+				myScore.color = "BlueViolet";
+				else if(multi>4)
+				myScore.color = "Brown";
+				else myScore.color = "Blue";
+				}else{
+				scoreCount+=multi;
+				if(multi>2&&multi<5)
+				myScore.color = "yellow";
+				else if(multi>4)
+				myScore.color = "green";
+				else myScore.color = "black";
+				}
+				
+				myScore.text="SCORE: " + Math.round((scoreCount/30));
+				myScore.update();
+				for(var iinndex=0;iinndex<life;iinndex++)
+				{
+				lifearray[iinndex].update();
+				}
+                myGamePiece.update();
+                
+
+            }
+
+
+            function everyinterval(n) {
+                if ((myGameArea.frameNo / n) % 1 === 0) {
+                    return true;
+                }
+                return false;
+            }
+            function clearmove() {
+                myGamePiece.speedX = 0;
+                myGamePiece.speedY = 0;
+            }
+            function moveup() {
+			if (myGamePiece.y>0){
+                if (myGamePiece.speedY > 2)
+                    myGamePiece.speedY = 2;
+                if (everyinterval(5))
+                    if (myGamePiece.speedY > -5)
+                        myGamePiece.speedY--;
+						}else{
+						myGamePiece.speedY=2;
+						}
+
+            }
+
+            function movedown() {
+			if (myGamePiece.y<500-50){
+                if (myGamePiece.speedY < -2)
+                    myGamePiece.speedY = -2;
+                if (everyinterval(5))
+                    if (myGamePiece.speedY < 5)
+                        myGamePiece.speedY++;
+						}
+						else myGamePiece.speedY=-2;
+            
+			}
+
+            function moveright() {
+                if (multi < 20 &&everyinterval(15))
+                    myGamePiece.speedX = multi++;
+            }
+
+            function moveleft() {
+                if (multi > 1 &&everyinterval(5))
+                    myGamePiece.speedX = multi--;
+            }
+
+            function clearmove() {
+                myGamePiece.speedX = 0;
+                myGamePiece.speedY = 0;
+				if(multi>1&&everyinterval(30))
+				multi -=1;
+				
+            }
+        </script>
+    </body>
+</html>
+
+
